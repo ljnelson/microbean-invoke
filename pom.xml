@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.microbean</groupId>
     <artifactId>microbean-pluginmanagement-pom</artifactId>
-    <version>18</version>
+    <version>21</version>
     <relativePath />
   </parent>
 
@@ -25,36 +25,7 @@
     <tag>HEAD</tag>
   </scm>
 
-  <dependencyManagement>
-    <dependencies>
-
-
-      <!-- Normal dependencies. -->
-
-
-      <dependency>
-        <groupId>org.microbean</groupId>
-        <artifactId>microbean-development-annotations</artifactId>
-        <version>0.2.12</version>
-        <type>jar</type>
-      </dependency>
-
-
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
-
-
-    <!-- Compile-scoped dependencies. -->
-
-
-    <dependency>
-        <groupId>org.microbean</groupId>
-        <artifactId>microbean-development-annotations</artifactId>
-        <type>jar</type>
-        <scope>compile</scope>
-    </dependency>
 
 
     <!-- Test-scoped dependencies. -->
@@ -137,12 +108,10 @@
 
     <!-- maven-compiler-plugin properties -->
     <maven.compiler.release>17</maven.compiler.release>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
 
     <!-- maven-javadoc-plugin properties -->
     <detectJavaApiLink>false</detectJavaApiLink>
-    <links>https://docs.oracle.com/en/java/javase/17/docs/api,https://microbean.github.io/microbean-development-annotations/apidocs/</links>
+    <links>https://docs.oracle.com/en/java/javase/17/docs/api</links>
 
   </properties>
 

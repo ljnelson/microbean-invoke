@@ -1,18 +1,15 @@
 /* -*- mode: Java; c-basic-offset: 2; indent-tabs-mode: nil; coding: utf-8-unix -*-
  *
- * Copyright © 2022 microBean™.
+ * Copyright © 2022–2023 microBean™.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.microbean.invoke;
 
@@ -21,12 +18,10 @@ import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
 /**
- * An {@link OptionalSupplier} that tries one {@link Supplier} first,
- * before falling back to another one, while properly implementing the
- * {@link #determinism()} method.
+ * An {@link OptionalSupplier} that tries one {@link Supplier} first, before falling back to another one, while properly
+ * implementing the {@link #determinism()} method.
  *
- * @author <a href="https://about.me/lairdnelson"
- * target="_parent">Laird Nelson</a>
+ * @author <a href="https://about.me/lairdnelson" target="_parent">Laird Nelson</a>
  */
 final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
 
@@ -49,15 +44,15 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
     final Determinism determinism;
     if (supplier == null) {
       if (defaults == null) {
-        supplier = Absence.instance();
+        supplier = Absence.of();
         determinism = Determinism.ABSENT;
       } else if (defaults instanceof OptionalSupplier<? extends T> dos) {
         supplier = defaults;
-        defaults = Absence.instance();
+        defaults = Absence.of();
         determinism = dos.determinism();
       } else {
         supplier = defaults;
-        defaults = Absence.instance();
+        defaults = Absence.of();
         determinism = Determinism.NON_DETERMINISTIC;
       }
     } else if (supplier instanceof OptionalSupplier<? extends T> sos) {
@@ -68,15 +63,15 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
         final Determinism dd = dos.determinism();
         if (sd == Determinism.ABSENT) {
           if (dd == Determinism.ABSENT) {
-            defaults = Absence.instance();
+            defaults = Absence.of();
             determinism = Determinism.ABSENT;
           } else {
             supplier = defaults;
-            defaults = Absence.instance();
+            defaults = Absence.of();
             determinism = sd;
           }
         } else if (sd == Determinism.PRESENT) {
-          defaults = Absence.instance();
+          defaults = Absence.of();
           determinism = Determinism.PRESENT;
         } else if (sd == Determinism.DETERMINISTIC) {
           if (dd == Determinism.DETERMINISTIC) {
@@ -99,18 +94,15 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
   }
 
   /**
-   * Returns an {@link Determinism} suitable for this {@link
-   * DefaultingOptionalSupplier}.
+   * Returns an {@link Determinism} suitable for this {@link DefaultingOptionalSupplier}.
    *
-   * @return a {@link Determinism} suitable for this {@link
-   * DefaultingOptionalSupplier}
+   * @return a {@link Determinism} suitable for this {@link DefaultingOptionalSupplier}
    *
    * @nullability This method never returns {@code null}.
    *
    * @idempotency This method is idempotent and deterministic.
    *
-   * @threadsafety This method is safe for concurrent use by multiple
-   * threads.
+   * @threadsafety This method is safe for concurrent use by multiple threads.
    */
   @Override
   public final Determinism determinism() {
@@ -118,16 +110,11 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
   }
 
   /**
-   * Attempts to return the return value of an invocation of the
-   * {@link Supplier#get()} method on the main {@link Supplier}
-   * supplied {@linkplain #of(Supplier, Supplier) to one of the
-   * factory methods}, unless that invocation causes a {@link
-   * NoSuchElementException} or an {@link
-   * UnsupportedOperationException} to be thrown, in which case
-   * attempts to return the return value of an invocation of the
-   * {@link Supplier#get()} method on the default {@link Supplier}
-   * supplied {@linkplain #of(Supplier, Supplier) to one of the
-   * factory methods}.
+   * Attempts to return the return value of an invocation of the {@link Supplier#get()} method on the main {@link
+   * Supplier} supplied {@linkplain #of(Supplier, Supplier) to one of the factory methods}, unless that invocation
+   * causes a {@link NoSuchElementException} or an {@link UnsupportedOperationException} to be thrown, in which case
+   * attempts to return the return value of an invocation of the {@link Supplier#get()} method on the default {@link
+   * Supplier} supplied {@linkplain #of(Supplier, Supplier) to one of the factory methods}.
    *
    * @return the value in question, which may be {@code null}
    *
@@ -139,24 +126,22 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
    *
    * @idempotency This method is idempotent and deterministic.
    *
-   * @threadsafety This method is safe for concurrent use by multiple
-   * threads.
+   * @threadsafety This method is safe for concurrent use by multiple threads.
    *
    * @see #of(Supplier, Supplier)
    */
   @Override
+  @SuppressWarnings("fallthrough")
   public final T get() {
     final Determinism d = this.determinism();
     try {
       final T value = this.supplier.get();
       switch (d) {
       case DETERMINISTIC:
-        // We were told whatever the supplier does it will forever do.
-        // We just didn't know what it would do.  Now we know what it
-        // will do: it will always return a value.  Adjust our
-        // determinism accordingly.
+        // We were told whatever the supplier does it will forever do.  We just didn't know what it would do.  Now we
+        // know what it will do: it will always return a value.  Adjust our determinism accordingly.
         this.determinism = Determinism.PRESENT;
-        return value;
+        // fall through
       case PRESENT:
       case NON_DETERMINISTIC:
         return value;
@@ -192,29 +177,23 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
 
 
   /**
-   * Returns a {@link DefaultingOptionalSupplier} whose {@link #determinism()}
-   * method will always return {@link Determinism#ABSENT} and whose
-   * {@link #get()} method will always throw a {@link
-   * NoSuchElementException} or an {@link
+   * Returns a {@link DefaultingOptionalSupplier} whose {@link #determinism()} method will always return {@link
+   * Determinism#ABSENT} and whose {@link #get()} method will always throw a {@link NoSuchElementException} or an {@link
    * UnsupportedOperationException}.
    *
-   * @param <T> the type of object the returned {@link
-   * DefaultingOptionalSupplier} will {@linkplain #get() supply}
+   * @param <T> the type of object the returned {@link DefaultingOptionalSupplier} will {@linkplain #get() supply}
    *
-   * @return a {@link DefaultingOptionalSupplier} whose {@link #determinism()}
-   * method will always return {@link Determinism#ABSENT} and whose
-   * {@link #get()} method will always throw a {@link
-   * NoSuchElementException} or an {@link
+   * @return a {@link DefaultingOptionalSupplier} whose {@link #determinism()} method will always return {@link
+   * Determinism#ABSENT} and whose {@link #get()} method will always throw a {@link NoSuchElementException} or an {@link
    * UnsupportedOperationException}
    *
    * @nullability This method will never return {@code null}.
    *
    * @idempotency This method is idempotent and deterministic.
    *
-   * @threadsafety This method is safe for concurrent use by multiple
-   * threads.
+   * @threadsafety This method is safe for concurrent use by multiple threads.
    *
-   * @see Absence#instance()
+   * @see Absence#of()
    *
    * @see #get()
    *
@@ -227,12 +206,10 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
   /**
    * Returns a {@link DefaultingOptionalSupplier} with no defaults.
    *
-   * @param <T> the type of object the returned {@link
-   * DefaultingOptionalSupplier} will {@linkplain #get() supply}
+   * @param <T> the type of object the returned {@link DefaultingOptionalSupplier} will {@linkplain #get() supply}
    *
-   * @param supplier the {@link Supplier} in question; may be {@code
-   * null} in which case a {@link DefaultingOptionalSupplier} that behaves
-   * identically to an {@link Absence} instance will be returned
+   * @param supplier the {@link Supplier} in question; may be {@code null} in which case a {@link
+   * DefaultingOptionalSupplier} that behaves identically to an {@link Absence} instance will be returned
    *
    * @return a {@link DefaultingOptionalSupplier} with no defaults
    *
@@ -240,10 +217,9 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
    *
    * @idempotency This method is idempotent and deterministic.
    *
-   * @threadsafety This method is safe for concurrent use by multiple
-   * threads.
+   * @threadsafety This method is safe for concurrent use by multiple threads.
    *
-   * @see Absence#instance()
+   * @see Absence#of()
    *
    * @see #get()
    *
@@ -254,24 +230,18 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
   }
 
   /**
-   * Returns a {@link DefaultingOptionalSupplier} that will, loosely speaking,
-   * try the supplied {@code supplier} first, and, if it throws a
-   * {@link NoSuchElementException} or an {@link
-   * UnsupportedOperationException} from its {@link Supplier#get()}
-   * method, will then try the supplied {@code defaults}.
+   * Returns a {@link DefaultingOptionalSupplier} that will, loosely speaking, try the supplied {@code supplier} first,
+   * and, if it throws a {@link NoSuchElementException} or an {@link UnsupportedOperationException} from its {@link
+   * Supplier#get()} method, will then try the supplied {@code defaults}.
    *
-   * <p>The supplied {@link Supplier} instances can, themselves, be
-   * {@link OptionalSupplier}s, and, if so, the resulting {@link
-   * DefaultingOptionalSupplier} will have its {@link #determinism()} method
-   * appropriately implemented.</p>
+   * <p>The supplied {@link Supplier} instances can, themselves, be {@link OptionalSupplier}s, and, if so, the resulting
+   * {@link DefaultingOptionalSupplier} will have its {@link #determinism()} method appropriately implemented.</p>
    *
-   * @param <T> the type of object the returned {@link
-   * DefaultingOptionalSupplier} will {@linkplain #get() supply}
+   * @param <T> the type of object the returned {@link DefaultingOptionalSupplier} will {@linkplain #get() supply}
    *
    * @param supplier the first {@link Supplier} to try; may be {@code null}
    *
-   * @param defaults the fallback {@link Supplier} to try; may be
-   * {@code null}
+   * @param defaults the fallback {@link Supplier} to try; may be {@code null}
    *
    * @return a {@link DefaultingOptionalSupplier}
    *
@@ -279,8 +249,7 @@ final class DefaultingOptionalSupplier<T> implements OptionalSupplier<T> {
    *
    * @idempotency This method is idempotent and deterministic.
    *
-   * @threadsafety This method is safe for concurrent use by multiple
-   * threads.
+   * @threadsafety This method is safe for concurrent use by multiple threads.
    *
    * @see #get()
    *

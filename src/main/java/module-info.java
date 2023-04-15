@@ -1,6 +1,6 @@
 /* -*- mode: Java; c-basic-offset: 2; indent-tabs-mode: nil; coding: utf-8-unix -*-
  *
- * Copyright © 2022 microBean™.
+ * Copyright © 2022–2023 microBean™.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,5 @@
  * @see java.lang.invoke.ConstantBootstraps
  */
 module org.microbean.invoke {
-  requires transitive org.microbean.development.annotation;
   exports org.microbean.invoke;
 }
